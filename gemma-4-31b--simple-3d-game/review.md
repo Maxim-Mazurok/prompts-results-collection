@@ -1,1 +1,1 @@
-Very basic (cubes), but working/playable, and relatively fast result.
+Very basic (cubes), but working/playable, and relatively fast result. The same game as Gemma-4-12B and 26B produced, which kinda makes 31B look bad, I'd expect more from a more capable model. Could be an indicator of low ambition compared to ability.
