@@ -1,5 +1,5 @@
-Context Length: 120000
-GPU Offload: 10
+Context Length: 24000
+GPU Offload: 12
 CPU Thread Pool Size: 10
 Evaluation Batch Size: 2048
 Physical Batch Size: 512
@@ -13,10 +13,9 @@ Offload KV Cache to GPU Memory: Enabled
 Keep Model in Memory: Enabled
 Try mmap(): Enabled
 Seed: Random Seed
-Speculative Decoding: MTP
-Max draft tokens: 3
-Min draft tokens: 0
-Draft probability: 0
+Number of Experts: 8
+Number of layers to force the experts into CPU: 0
+Speculative Decoding: Off
 Chat Template: Default
 Flash Attention: Enabled
 K Cache Quantization Type: Disabled
@@ -24,16 +23,15 @@ V Cache Quantization Type: Disabled
 llama.cpp Arguments Override: Disabled
 
 System Prompt: *blank*
-Reasoning Effort: Extra High
 Enable Thinking: Enabled
 Reasoning Budget: Disabled
 Temperature: 1
 Limit Response Length: Disabled
 Content Overflow: Truncate Middle
 Stop Strings: *blank*
-Top K Sampling: 20
-Repeat Penalty: Disabled
+Top K Sampling: 64
+Repeat Penalty: 1
 Presence Penalty: Disabled
 Top P Sampling: 0.95
-Min P Sampling: Disabled
+Min P Sampling: 0.05
 Structured Output: Disabled
