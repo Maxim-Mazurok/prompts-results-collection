@@ -1,0 +1,1 @@
+lmstudio-community/Bonsai-27B-GGUF/Bonsai-27B-Q1_0.gguf
