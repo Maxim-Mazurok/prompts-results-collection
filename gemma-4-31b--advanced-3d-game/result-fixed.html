@@ -1,0 +1,292 @@
+<!-- Fixed with Claude Sonnet 5 High 200K in VS Code Agent Mode; Prompt: fix the game, i don't seem to fly anywhere, just moving on Z axis it seems. also it mentioned some fog to cover edges of map but i don't see it, fix if it was planned in the code -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON OVERDRIVE // Procedural Flight</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #ui {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #0ff;
+            text-shadow: 0 0 10px #0ff;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .stat {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+        #instructions {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            color: #f0f;
+            text-shadow: 0 0 10px #f0f;
+            font-size: 14px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <div class="stat">DISTANCE: <span id="dist">0</span>m</div>
+        <div class="stat">SPEED: <span id="speed">0</span> km/h</div>
+    </div>
+
+    <div id="instructions">
+        Use [WASD] or [Arrow Keys] to Steer &nbsp; | &nbsp; Shift to Boost
+    </div>
+
+    <!-- Load Three.js and Post-Processing from CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+
+        // --- CONFIGURATION ---
+        const CONFIG = {
+            speed: 0.8,
+            boost: 2.2,
+            turnSpeed: 0.05,
+            terrainSize: 200,
+            terrainResolution: 128
+        };
+
+        let scene, camera, renderer, composer, terrain;
+        let playerPos = new THREE.Vector3(0, 5, 0);
+        let playerRot = new THREE.Euler(0, 0, 0);
+        let velocity = CONFIG.speed;
+        let distanceTraveled = 0;
+
+        const keys = { w: false, a: false, s: false, d: false, shift: false };
+
+        // --- SHADERS ---
+        // Custom GLSL to handle infinite procedural terrain on the GPU
+        const terrainVertexShader = `
+            varying vec2 vUv;
+            varying float vHeight;
+            varying float vFogDepth;
+            uniform vec2 uPlayerPos;
+
+            // Simple noise function
+            float hash(vec2 p) {
+                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+            }
+
+            float noise(vec2 p) {
+                vec2 i = floor(p);
+                vec2 f = fract(p);
+                vec2 u = f*f*(3.0-2.0*f);
+                return mix(mix(hash(i + vec2(0.0,0.0)), hash(i + vec2(1.0,0.0)), u.x),
+                           mix(hash(i + vec2(0.0,1.0)), hash(i + vec2(1.0,1.0)), u.x), u.y);
+            }
+
+            float fbm(vec2 p) {
+                float v = 0.0;
+                float a = 0.5;
+                for (int i = 0; i < 5; i++) {
+                    v += a * noise(p);
+                    p *= 2.0;
+                    a *= 0.5;
+                }
+                return v;
+            }
+
+            void main() {
+                vUv = uv;
+                // Sample noise using the true world-space position so steering/strafing
+                // reveals new terrain instead of a fixed time-based scroll
+                vec2 worldPos = position.xz + uPlayerPos;
+                float h = fbm(worldPos * 0.02) * 15.0;
+                vHeight = h;
+                
+                vec3 newPos = position;
+                newPos.y = h;
+                
+                vec4 mvPosition = modelViewMatrix * vec4(newPos, 1.0);
+                vFogDepth = -mvPosition.z;
+                gl_Position = projectionMatrix * mvPosition;
+            }
+        `;
+
+        const terrainFragmentShader = `
+            varying vec2 vUv;
+            varying float vHeight;
+            varying float vFogDepth;
+            uniform vec3 uFogColor;
+            uniform float uFogDensity;
+
+            void main() {
+                // Neon color palette based on height
+                vec3 lowColor = vec3(0.0, 0.1, 0.4);
+                vec3 midColor = vec3(0.5, 0.0, 1.0);
+                vec3 highColor = vec3(0.0, 1.0, 1.0);
+                
+                vec3 color = mix(lowColor, midColor, smoothstep(0.0, 5.0, vHeight));
+                color = mix(color, highColor, smoothstep(5.0, 12.0, vHeight));
+
+                // Grid lines
+                float grid = sin(vUv.x * 100.0) * sin(vUv.y * 100.0);
+                grid = step(0.98, grid);
+                
+                color += grid * 0.3;
+
+                // Exponential-squared fog to hide the terrain edges (mirrors scene.fog settings)
+                float fogFactor = 1.0 - exp(-uFogDensity * uFogDensity * vFogDepth * vFogDepth);
+                color = mix(color, uFogColor, fogFactor);
+
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+
+        init();
+        animate();
+
+        function init() {
+            // Scene & Camera
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x050010, 0.015);
+            
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setClearColor(0x050010);
+            document.body.appendChild(renderer.domElement);
+
+            // Post Processing (Bloom for that neon glow)
+            composer = new EffectComposer(renderer);
+            composer.addPass(new RenderPass(scene, camera));
+            const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
+            composer.addPass(bloomPass);
+
+            // Terrain
+            const geo = new THREE.PlaneGeometry(CONFIG.terrainSize, CONFIG.terrainSize, CONFIG.terrainResolution, CONFIG.terrainResolution);
+            geo.rotateX(-Math.PI / 2);
+
+            const material = new THREE.ShaderMaterial({
+                uniforms: {
+                    uPlayerPos: { value: new THREE.Vector2(0, 0) },
+                    uFogColor: { value: new THREE.Color(0x050010) },
+                    uFogDensity: { value: 0.015 },
+                },
+                vertexShader: terrainVertexShader,
+                fragmentShader: terrainFragmentShader,
+                wireframe: false
+            });
+
+            terrain = new THREE.Mesh(geo, material);
+            scene.add(terrain);
+
+            // Starfield
+            const starGeo = new THREE.BufferGeometry();
+            const starPos = [];
+            for(let i=0; i<5000; i++) {
+                starPos.push((Math.random()-0.5)*1000, (Math.random()-0.5)*1000, (Math.random()-0.5)*1000);
+            }
+            starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPos, 3));
+            const starMat = new THREE.PointsMaterial({ color: 0xffffff, size: 0.7 });
+            const stars = new THREE.Points(starGeo, starMat);
+            scene.add(stars);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            scene.add(ambientLight);
+
+            // Input Listeners
+            window.addEventListener('keydown', (e) => handleKey(e, true));
+            window.addEventListener('keyup', (e) => handleKey(e, false));
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        function handleKey(e, isDown) {
+            const key = e.key.toLowerCase();
+            if (key === 'w' || key === 'arrowup') keys.w = isDown;
+            if (key === 'a' || key === 'arrowleft') keys.a = isDown;
+            if (key === 's' || key === 'arrowdown') keys.s = isDown;
+            if (key === 'd' || key === 'arrowright') keys.d = isDown;
+            if (key === 'shift') keys.shift = isDown;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            composer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function updatePlayer() {
+            // Handle Acceleration
+            const targetSpeed = keys.shift ? CONFIG.boost : CONFIG.speed;
+            velocity = THREE.MathUtils.lerp(velocity, targetSpeed, 0.1);
+
+            // Handle Steering
+            if (keys.a) playerRot.y += CONFIG.turnSpeed;
+            if (keys.d) playerRot.y -= CONFIG.turnSpeed;
+            
+            // Pitch (W/S)
+            if (keys.w) playerRot.x -= CONFIG.turnSpeed * 0.5;
+            if (keys.s) playerRot.x += CONFIG.turnSpeed * 0.5;
+
+            // Constrain Pitch
+            playerRot.x = THREE.MathUtils.clamp(playerRot.x, -0.5, 0.5);
+
+            // Move forward based on rotation
+            const direction = new THREE.Vector3(0, 0, -1);
+            direction.applyEuler(playerRot);
+            
+            playerPos.addScaledVector(direction, velocity);
+            
+            // Update Camera
+            camera.position.copy(playerPos);
+            camera.rotation.copy(playerRot);
+
+            // Update UI
+            distanceTraveled += velocity;
+            document.getElementById('dist').innerText = Math.floor(distanceTraveled);
+            document.getElementById('speed').innerText = Math.floor(velocity * 500);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            updatePlayer();
+
+            // Move terrain mesh (and its noise sampling) to the player's true world position
+            // so steering/strafing actually reveals different terrain
+            terrain.position.x = playerPos.x;
+            terrain.position.z = playerPos.z;
+            terrain.material.uniforms.uPlayerPos.value.set(playerPos.x, playerPos.z);
+
+            composer.render();
+        }
+    </script>
+</body>
+</html>
