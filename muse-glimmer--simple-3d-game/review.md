@@ -1,0 +1,2 @@
+Very basic (cubes and spheres), kinda working, can move around, but the game part is not working - can't collect items. Even with collection fixed, nothing happens when I collect all the items, no win condition... I guess for a super-simple game it's ok, if collection worked.
+Was pretty fast, but compared to Qwen3.6-35b-a3b it wasn't much faster, but was much less advanced and had a major bug. Not very pleased.
