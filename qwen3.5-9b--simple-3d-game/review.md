@@ -1,0 +1,1 @@
+Actually impressive for a small model. It worked for the most part, and the game is relatively advanced. I mean it's still just cubes, but going around, collecting cubes, dodging cubes... Not too bad for a small and very fast model. There was an issue - game over screen didn't show up, because particles effects had a bug. But overall pretty good result considering model size.
