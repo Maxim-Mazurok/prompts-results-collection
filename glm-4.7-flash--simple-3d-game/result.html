@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Dash - 3D Infinite Runner</title>
+    <style>
+        :root {
+            --primary: #00f3ff;
+            --secondary: #ff0055;
+            --bg-dark: #050510;
+            --ui-bg: rgba(20, 20, 35, 0.85);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+        }
+
+        /* 3D Canvas Container */
+        #game-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* UI Overlay Layer */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none; /* Let clicks pass through to canvas when playing */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 2rem;
+        }
+
+        /* HUD */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px var(--primary);
+        }
+
+        .score-board {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .high-score {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+
+        /* Menus (Start / Game Over) */
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--ui-bg);
+            backdrop-filter: blur(10px);
+            padding: 3rem;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+            pointer-events: auto;
+            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+            transition: opacity 0.3s ease;
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none;
+            display: none;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--primary), #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            margin-bottom: 2rem;
+            color: #ccc;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.2s ease;
+            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn:hover {
+            background: var(--primary);
+            color: var(--bg-dark);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
+            transform: scale(1.05);
+        }
+
+        /* Controls hint */
+        .controls-hint {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .key {
+            display: inline-block;
+            background: rgba(255,255,255,0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 0 2px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Mobile Controls */
+        #mobile-controls {
+            display: none; /* Hidden on desktop by default */
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            text-align: center;
+            pointer-events: auto;
+        }
+        
+        .touch-zone {
+            display: inline-block;
+            width: 120px;
+            height: 120px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            border: 2px dashed rgba(255,255,255,0.2);
+            margin: 0 20px;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .modal { padding: 2rem; width: 90%; }
+            #mobile-controls { display: block; }
+        }
+    </style>
+    <!-- Import Three.js from CDN -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+</head>
+<body>
+
+    <!-- 3D Scene Container -->
+    <div id="game-container"></div>
+
+    <!-- UI Overlay -->
+    <div id="ui-layer">
+        <header>
+            <div class="logo">NEON DASH</div>
+            <div class="score-board">SCORE: <span id="score-val">0</span></div>
+        </header>
+
+        <!-- Start Screen -->
+        <div id="start-screen" class="modal">
+            <h1>NEON DASH</h1>
+            <p>Dodge the red obstacles. Survive as long as you can.</p>
+            <button class="btn" id="start-btn">Start Game</button>
+            <div class="controls-hint">
+                Use <span class="key">←</span> <span class="key">→</span> or Mouse to move
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="modal hidden">
+            <h1>GAME OVER</h1>
+            <p>Final Score: <span id="final-score">0</span></p>
+            <button class="btn" id="restart-btn">Try Again</button>
+        </div>
+
+        <!-- Mobile Controls Hint -->
+        <div id="mobile-controls">
+            <div class="touch-zone">Tap Left / Right</div>
+        </div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Game Configuration ---
+        const CONFIG = {
+            laneWidth: 4,
+            playerSpeed: 0.15,
+            baseSpeed: 0.4,
+            speedIncrement: 0.0005,
+            spawnRate: 60, // frames
+            colors: {
+                player: 0x00f3ff,
+                obstacle: 0xff0055,
+                grid: 0x222244,
+                bg: 0x050510
+            }
+        };
+
+        // --- Global Variables ---
+        let scene, camera, renderer;
+        let player;
+        let obstacles = [];
+        let particles = [];
+        let score = 0;
+        let gameActive = false;
+        let frameCount = 0;
+        let gameSpeed = CONFIG.baseSpeed;
+        let targetX = 0; // Where the player wants to go
+        let mouseX = 0;  // Normalized mouse position
+
+        // DOM Elements
+        const scoreEl = document.getElementById('score-val');
+        const finalScoreEl = document.getElementById('final-score');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // --- Initialization ---
+        function init() {
+            // Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(CONFIG.colors.bg);
+            scene.fog = new THREE.FogExp2(CONFIG.colors.bg, 0.03);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 3, 6);
+            camera.lookAt(0, 0, -5);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            document.getElementById('game-container').appendChild(renderer.domElement);
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(5, 10, 5);
+            scene.add(dirLight);
+
+            // Player
+            createPlayer();
+
+            // Environment (Grid Floor)
+            const gridHelper = new THREE.GridHelper(200, 100, CONFIG.colors.player, CONFIG.colors.grid);
+            gridHelper.position.y = -1;
+            scene.add(gridHelper);
+
+            // Starfield
+            createStarfield();
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('touchmove', onTouchMove, { passive: false });
+            
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', resetGame);
+
+            // Start Animation Loop
+            animate();
+        }
+
+        function createPlayer() {
+            // A sleek geometric ship
+            const geometry = new THREE.ConeGeometry(0.5, 1.5, 4);
+            geometry.rotateX(Math.PI / 2); // Point forward
+            const material = new THREE.MeshStandardMaterial({ 
+                color: CONFIG.colors.player,
+                emissive: CONFIG.colors.player,
+                emissiveIntensity: 0.5,
+                roughness: 0.2,
+                metalness: 0.8
+            });
+            player = new THREE.Mesh(geometry, material);
+            player.position.y = 0;
+            scene.add(player);
+        }
+
+        function createStarfield() {
+            const starsGeometry = new THREE.BufferGeometry();
+            const starsCount = 1000;
+            const posArray = new Float32Array(starsCount * 3);
+
+            for(let i = 0; i < starsCount * 3; i++) {
+                posArray[i] = (Math.random() - 0.5) * 100;
+            }
+
+            starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            const starsMaterial = new THREE.PointsMaterial({
+                size: 0.1,
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            const starMesh = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(starMesh);
+        }
+
+        function createObstacle() {
+            // Randomly choose left, center, or right lane
+            const lanes = [-CONFIG.laneWidth, 0, CONFIG.laneWidth];
+            const lane = lanes[Math.floor(Math.random() * lanes.length)];
+
+            // Random shape: Cube or Icosahedron
+            const type = Math.random() > 0.5 ? 'box' : 'sphere';
+            let geometry;
+            
+            if (type === 'box') {
+                geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            } else {
+                geometry = new THREE.IcosahedronGeometry(1, 0);
+            }
+
+            const material = new THREE.MeshStandardMaterial({
+                color: CONFIG.colors.obstacle,
+                emissive: 0x550000,
+                roughness: 0.1,
+                metalness: 0.5
+            });
+
+            const obstacle = new THREE.Mesh(geometry, material);
+            
+            // Spawn far ahead
+            obstacle.position.set(lane, 0, -50);
+            
+            // Add random rotation speed for visual flair
+            obstacle.userData = {
+                rotX: Math.random() * 0.05,
+                rotY: Math.random() * 0.05
+            };
+
+            scene.add(obstacle);
+            obstacles.push(obstacle);
+        }
+
+        function createExplosion(position) {
+            // Simple particle explosion
+            const particleCount = 15;
+            const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
+            const material = new THREE.MeshBasicMaterial({ color: CONFIG.colors.player });
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = new THREE.Mesh(geometry, material);
+                particle.position.copy(position);
+                
+                // Random velocity
+                particle.userData = {
+                    vel: new THREE.Vector3(
+                        (Math.random() - 0.5) * 0.5,
+                        (Math.random() - 0.5) * 0.5,
+                        (Math.random() - 0.5) * 0.5
+                    ),
+                    life: 1.0
+                };
+                
+                scene.add(particle);
+                particles.push(particle);
+            }
+        }
+
+        // --- Game Logic ---
+
+        function startGame() {
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            gameActive = true;
+            score = 0;
+            gameSpeed = CONFIG.baseSpeed;
+            scoreEl.innerText = '0';
+            
+            // Clear existing obstacles
+            obstacles.forEach(ob => scene.remove(ob));
+            obstacles = [];
+        }
+
+        function resetGame() {
+            startGame();
+        }
+
+        function gameOver() {
+            gameActive = false;
+            finalScoreEl.innerText = Math.floor(score);
+            gameOverScreen.classList.remove('hidden');
+            
+            // Visual feedback
+            createExplosion(player.position);
+            player.visible = false;
+        }
+
+        function updatePlayer() {
+            if (!gameActive) return;
+
+            // Smooth movement towards target X
+            player.position.x += (targetX - player.position.x) * 0.1;
+            
+            // Tilt effect based on movement
+            const tilt = (player.position.x - targetX) * 0.5;
+            player.rotation.z = tilt;
+            player.rotation.x = Math.PI / 2; // Keep pointing forward
+        }
+
+        function updateObstacles() {
+            if (!gameActive) return;
+
+            // Spawn logic
+            frameCount++;
+            if (frameCount % Math.floor(CONFIG.spawnRate / (gameSpeed * 2)) === 0) {
+                createObstacle();
+            }
+
+            // Move and check collisions
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                const ob = obstacles[i];
+                ob.position.z += gameSpeed;
+
+                // Rotate obstacle
+                ob.rotation.x += ob.userData.rotX;
+                ob.rotation.y += ob.userData.rotY;
+
+                // Collision Detection (Simple distance check)
+                // Player is roughly at z=0, obstacles come from z=-50
+                if (ob.position.z > -1 && ob.position.z < 1) {
+                    const dist = Math.abs(player.position.x - ob.position.x);
+                    if (dist < 1.0) { // Hit!
+                        gameOver();
+                    }
+                }
+
+                // Remove if passed camera
+                if (ob.position.z > 5) {
+                    scene.remove(ob);
+                    obstacles.splice(i, 1);
+                    score += 10;
+                    scoreEl.innerText = score;
+                }
+            }
+        }
+
+        function updateParticles() {
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.position.add(p.userData.vel);
+                p.userData.life -= 0.02;
+                p.scale.setScalar(p.userData.life);
+                
+                if (p.userData.life <= 0) {
+                    scene.remove(p);
+                    particles.splice(i, 1);
+                }
+            }
+        }
+
+        function updateEnvironment() {
+            // Move grid to simulate speed
+            const grid = scene.children.find(c => c.type === 'GridHelper');
+            if (grid) {
+                grid.position.z += gameSpeed;
+                if (grid.position.z > 0) grid.position.z = 0;
+            }
+        }
+
+        // --- Input Handling ---
+
+        function onMouseMove(event) {
+            if (!gameActive) return;
+            // Map mouse X (-1 to 1) to lane width
+            mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+            targetX = mouseX * CONFIG.laneWidth;
+        }
+
+        function onTouchMove(event) {
+            if (!gameActive) return;
+            event.preventDefault(); // Prevent scrolling
+            const touchX = (event.touches[0].clientX / window.innerWidth) * 2 - 1;
+            targetX = touchX * CONFIG.laneWidth;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- Main Loop ---
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (gameActive) {
+                // Increase speed over time
+                gameSpeed += CONFIG.speedIncrement;
+                score += 0.1; // Passive score
+                scoreEl.innerText = Math.floor(score);
+            }
+
+            updatePlayer();
+            updateObstacles();
+            updateParticles();
+            updateEnvironment();
+
+            renderer.render(scene, camera);
+        }
+
+        // Initialize
+        init();
+
+    </script>
+</body>
+</html>

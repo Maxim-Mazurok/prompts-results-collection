@@ -1,0 +1,201 @@
+{
+  "createdAt": 1790762845265,
+  "tokenCount": 5368,
+  "systemPrompt": "",
+  "messages": [
+    {
+      "versions": [
+        {
+          "type": "singleStep",
+          "role": "user",
+          "content": [
+            {
+              "type": "text",
+              "text": "create a simple 3d game in a single self-contained html page, feel free to use http-loaded dependencies/libraries from unpkg/etc."
+            }
+          ]
+        }
+      ],
+      "currentlySelected": 0
+    },
+    {
+      "versions": [
+        {
+          "type": "multiStep",
+          "role": "assistant",
+          "steps": [
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1790762852047-0.06156849627734995",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Here's a thinking process that leads to the suggested 3D game:\n\n1.  **Analyze the Request:**\n    *   **Goal:** Create a simple 3D game.\n    *   **Format:** Single self-contained HTML page (HTML + CSS + JS).\n    *   **Dependencies:** Can use libraries from CDNs (like unpkg).\n    *   **Language:** English (implied by the user's prompt).\n    *   **Constraints:** No `alert()`, responsive, semantic HTML, interactive, good UI/UX.\n\n2.  **Game Concept & Mechanics:**\n    *   *Idea:* A \"Space Dodger\" or \"Infinite Runner\" style game is usually the best fit for a single-file demo. It's easy to understand, visually engaging, and performant.\n    *   *Theme:* Cyberpunk/Neon or Space. Let's go with a \"Neon Void Runner\".\n    *   *Player:* A spaceship or a glowing cube.\n    *   *Controls:* Mouse movement or Arrow keys to steer left/right.\n    *   *Obstacles:* Asteroids or geometric shapes coming towards the player.\n    *   *Goal:* Survive as long as possible, score points based on distance/time.\n    *   *States:* Start Screen -> Game Loop -> Game Over Screen.\n\n3.  **Technology Stack:**\n    *   *Library:* Three.js is the standard for 3D in the browser. It's powerful, easy to use, and has great documentation.\n    *   *Physics:* Basic bounding box collision detection is sufficient for a simple game. No need for a heavy physics engine like Cannon.js unless complex interactions are needed.\n    *   *UI:* HTML/CSS overlays for menus and HUD.\n\n4.  **Step-by-Step Implementation Plan:**\n\n    *   **Step 1: HTML Structure:**\n        *   Container for the 3D canvas.\n        *   UI Layer (Start Menu, HUD, Game Over Modal).\n    *   **Step 2: CSS Styling:**\n        *   Reset and full-screen layout.\n        *   Modern, dark theme (Neon colors).\n        *   Transitions for UI elements.\n    *   **Step 3: JavaScript Setup (Three.js):**\n        *   Scene, Camera, Renderer.\n        *   Lighting (Ambient + Directional/Point).\n        *   The Player (Mesh + Movement logic).\n        *   The Environment (Grid floor, moving stars/particles).\n    *   **Step 4: Game Logic:**\n        *   *Spawning:* Create obstacles at a distance and move them towards the camera.\n        *   *Movement:* Move the player based on mouse position.\n        *   *Collision:* Check distance between player and obstacles.\n        *   *Scoring:* Increment score over time.\n    *   **Step 5: Polish:**\n        *   Particle effects (explosion or trail).\n        *   Sound effects (synthesized via Web Audio API to keep it self-contained, or just visual feedback if audio is too complex for a single file. Let's stick to visual feedback to ensure stability, maybe simple oscillator beeps if easy, but visual is safer). *Decision: Visual feedback only to avoid browser autoplay policy issues.*\n        *   Speed progression (game gets faster over time).\n\n5.  **Drafting the Code (Mental or Scratchpad):**\n\n    *   *Three.js Import:* Use ES modules from `unpkg`.\n    *   *Player:* A simple cone or tetrahedron looks cool and fast.\n    *   *Obstacles:* Cubes or Icosahedrons.\n    *   *Movement:*\n        *   Player X position is clamped between -10 and 10.\n        *   Obstacles move along Z axis. When Z > camera Z, remove them.\n\n6.  **Refining the UI/UX:**\n    *   Need a \"Start Game\" button.\n    *   Need a \"Restart\" button.\n    *   Score display in the corner.\n    *   \"Game Over\" screen with final score.\n\n7.  **Writing the Code (Iterative refinement):**\n\n    *   *HTML:* Semantic tags. `<main>` for the game container, `<div>` for UI overlays.\n    *   *CSS:* Absolute positioning for UI over the canvas. `backdrop-filter` for glassmorphism effects.\n    *   *JS:*\n        *   Initialize Three.js.\n        *   Create `animate()` loop.\n        *   Handle window resize.\n        *   Implement the \"Game Manager\" class or object to handle state (playing, game over).\n\n    *(Self-Correction during drafting)*:\n    *   *Issue:* If I just move the camera forward, it looks like the player is standing still.\n    *   *Fix:* Move the *world* (obstacles and floor) towards the player, or move the player forward and reset position. Moving obstacles towards the player is easier for an infinite runner.\n\n    *   *Visuals:* A simple grid floor looks retro. Let's add a moving grid.\n    *   *Colors:* Neon Cyan and Magenta.\n\n8.  **Final Code Assembly:**\n\n    *   **Imports:** `import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';`\n    *   **Game Loop:** Standard `requestAnimationFrame`.\n    *   **Collision:** Simple distance check `player.position.distanceTo(obstacle.position) < threshold`.\n    *   **Difficulty:** Increase speed variable every 500 points.\n\n9.  **Review against Requirements:**\n    *   *Single file?* Yes.\n    *   *No alerts?* Yes, custom UI.\n    *   *Semantic HTML?* Yes.\n    *   *3D Game?* Yes, Three.js based.\n    *   *Language:* English.\n\n10. **Final Polish:** Add comments explaining the code sections. Ensure the \"Restart\" button works correctly (resetting arrays and score).\n\n**(Self-Correction on Output):** The user asked for a \"simple 3d game\". I will build \"Neon Dash\" - an infinite runner where you dodge red cubes.\n\n*   *Structure:*\n    1.  CSS styles.\n    2.  HTML UI.\n    3.  JS: Setup.\n    4.  JS: Game Logic (Player, Obstacles, Particles).\n    5.  JS: Event Listeners.\n\nLet's write it out. (Proceeding to generate the HTML string).\n",
+                  "fromDraftModel": false,
+                  "tokensCount": 1371,
+                  "isStructural": false
+                }
+              ],
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true,
+              "style": {
+                "type": "thinking",
+                "ended": true,
+                "title": "Thought for 2 minutes 0 seconds",
+                "forceRenderAsPlainText": false
+              },
+              "prefix": "",
+              "suffix": "__LM_STUDIO_INTERNAL_LSEP_SYNTHETIC_REASONING_END_f4e9a8d2c6b14d0c9e5f3a7b8c1d2e6a__"
+            },
+            {
+              "type": "contentBlock",
+              "stepIdentifier": "1790762972836-0.9919429066724469",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "\n\nHere is a complete, self-contained 3D game called **\"Neon Dash\"**. It uses **Three.js** for rendering and includes a responsive UI, collision detection, and progressive difficulty.\n\nSave the following code as an `.html` file (e.g., `neon-dash.html`) and open it in your browser.\n\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Neon Dash - 3D Infinite Runner</title>\n    <style>\n        :root {\n            --primary: #00f3ff;\n            --secondary: #ff0055;\n            --bg-dark: #050510;\n            --ui-bg: rgba(20, 20, 35, 0.85);\n        }\n\n        * {\n            box-sizing: border-box;\n            margin: 0;\n            padding: 0;\n            user-select: none;\n        }\n\n        body {\n            overflow: hidden;\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            background-color: var(--bg-dark);\n            color: white;\n        }\n\n        /* 3D Canvas Container */\n        #game-container {\n            position: absolute;\n            top: 0;\n            left: 0;\n            width: 100vw;\n            height: 100vh;\n            z-index: 1;\n        }\n\n        /* UI Overlay Layer */\n        #ui-layer {\n            position: absolute;\n            top: 0;\n            left: 0;\n            width: 100%;\n            height: 100%;\n            z-index: 10;\n            pointer-events: none; /* Let clicks pass through to canvas when playing */\n            display: flex;\n            flex-direction: column;\n            justify-content: space-between;\n            padding: 2rem;\n        }\n\n        /* HUD */\n        header {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            text-transform: uppercase;\n            letter-spacing: 2px;\n            text-shadow: 0 0 10px var(--primary);\n        }\n\n        .score-board {\n            font-size: 1.5rem;\n            font-weight: bold;\n        }\n\n        .high-score {\n            font-size: 1rem;\n            opacity: 0.7;\n        }\n\n        /* Menus (Start / Game Over) */\n        .modal {\n            position: absolute;\n            top: 50%;\n            left: 50%;\n            transform: translate(-50%, -50%);\n            background: var(--ui-bg);\n            backdrop-filter: blur(10px);\n            padding: 3rem;\n            border-radius: 16px;\n            border: 1px solid rgba(255, 255, 255, 0.1);\n            text-align: center;\n            pointer-events: auto;\n            box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);\n            transition: opacity 0.3s ease;\n        }\n\n        .hidden {\n            opacity: 0;\n            pointer-events: none;\n            display: none;\n        }\n\n        h1 {\n            font-size: 3rem;\n            margin-bottom: 0.5rem;\n            background: linear-gradient(45deg, var(--primary), #fff);\n            -webkit-background-clip: text;\n            -webkit-text-fill-color: transparent;\n        }\n\n        p {\n            margin-bottom: 2rem;\n            color: #ccc;\n            line-height: 1.5;\n        }\n\n        .btn {\n            background: transparent;\n            color: var(--primary);\n            border: 2px solid var(--primary);\n            padding: 1rem 2.5rem;\n            font-size: 1.2rem;\n            font-weight: bold;\n            text-transform: uppercase;\n            cursor: pointer;\n            border-radius: 50px;\n            transition: all 0.2s ease;\n            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);\n        }\n\n        .btn:hover {\n            background: var(--primary);\n            color: var(--bg-dark);\n            box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);\n            transform: scale(1.05);\n        }\n\n        /* Controls hint */\n        .controls-hint {\n            margin-top: 1rem;\n            font-size: 0.9rem;\n            color: #888;\n        }\n\n        .key {\n            display: inline-block;\n            background: rgba(255,255,255,0.1);\n            padding: 2px 8px;\n            border-radius: 4px;\n            margin: 0 2px;\n            border: 1px solid rgba(255,255,255,0.2);\n        }\n\n        /* Mobile Controls */\n        #mobile-controls {\n            display: none; /* Hidden on desktop by default */\n            position: absolute;\n            bottom: 20px;\n            width: 100%;\n            text-align: center;\n            pointer-events: auto;\n        }\n        \n        .touch-zone {\n            display: inline-block;\n            width: 120px;\n            height: 120px;\n            background: rgba(255,255,255,0.05);\n            border-radius: 50%;\n            border: 2px dashed rgba(255,255,255,0.2);\n            margin: 0 20px;\n            align-items: center;\n            justify-content: center;\n            color: rgba(255,255,255,0.5);\n            font-size: 0.8rem;\n        }\n\n        @media (max-width: 768px) {\n            h1 { font-size: 2rem; }\n            .modal { padding: 2rem; width: 90%; }\n            #mobile-controls { display: block; }\n        }\n    </style>\n    <!-- Import Three.js from CDN -->\n    <script type=\"importmap\">\n        {\n            \"imports\": {\n                \"three\": \"https://unpkg.com/three@0.160.0/build/three.module.js\"\n            }\n        }\n    </script>\n</head>\n<body>\n\n    <!-- 3D Scene Container -->\n    <div id=\"game-container\"></div>\n\n    <!-- UI Overlay -->\n    <div id=\"ui-layer\">\n        <header>\n            <div class=\"logo\">NEON DASH</div>\n            <div class=\"score-board\">SCORE: <span id=\"score-val\">0</span></div>\n        </header>\n\n        <!-- Start Screen -->\n        <div id=\"start-screen\" class=\"modal\">\n            <h1>NEON DASH</h1>\n            <p>Dodge the red obstacles. Survive as long as you can.</p>\n            <button class=\"btn\" id=\"start-btn\">Start Game</button>\n            <div class=\"controls-hint\">\n                Use <span class=\"key\">←</span> <span class=\"key\">→</span> or Mouse to move\n            </div>\n        </div>\n\n        <!-- Game Over Screen -->\n        <div id=\"game-over-screen\" class=\"modal hidden\">\n            <h1>GAME OVER</h1>\n            <p>Final Score: <span id=\"final-score\">0</span></p>\n            <button class=\"btn\" id=\"restart-btn\">Try Again</button>\n        </div>\n\n        <!-- Mobile Controls Hint -->\n        <div id=\"mobile-controls\">\n            <div class=\"touch-zone\">Tap Left / Right</div>\n        </div>\n    </div>\n\n    <script type=\"module\">\n        import * as THREE from 'three';\n\n        // --- Game Configuration ---\n        const CONFIG = {\n            laneWidth: 4,\n            playerSpeed: 0.15,\n            baseSpeed: 0.4,\n            speedIncrement: 0.0005,\n            spawnRate: 60, // frames\n            colors: {\n                player: 0x00f3ff,\n                obstacle: 0xff0055,\n                grid: 0x222244,\n                bg: 0x050510\n            }\n        };\n\n        // --- Global Variables ---\n        let scene, camera, renderer;\n        let player;\n        let obstacles = [];\n        let particles = [];\n        let score = 0;\n        let gameActive = false;\n        let frameCount = 0;\n        let gameSpeed = CONFIG.baseSpeed;\n        let targetX = 0; // Where the player wants to go\n        let mouseX = 0;  // Normalized mouse position\n\n        // DOM Elements\n        const scoreEl = document.getElementById('score-val');\n        const finalScoreEl = document.getElementById('final-score');\n        const startScreen = document.getElementById('start-screen');\n        const gameOverScreen = document.getElementById('game-over-screen');\n        const startBtn = document.getElementById('start-btn');\n        const restartBtn = document.getElementById('restart-btn');\n\n        // --- Initialization ---\n        function init() {\n            // Scene Setup\n            scene = new THREE.Scene();\n            scene.background = new THREE.Color(CONFIG.colors.bg);\n            scene.fog = new THREE.FogExp2(CONFIG.colors.bg, 0.03);\n\n            // Camera\n            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);\n            camera.position.set(0, 3, 6);\n            camera.lookAt(0, 0, -5);\n\n            // Renderer\n            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });\n            renderer.setSize(window.innerWidth, window.innerHeight);\n            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));\n            document.getElementById('game-container').appendChild(renderer.domElement);\n\n            // Lighting\n            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);\n            scene.add(ambientLight);\n\n            const dirLight = new THREE.DirectionalLight(0xffffff, 1);\n            dirLight.position.set(5, 10, 5);\n            scene.add(dirLight);\n\n            // Player\n            createPlayer();\n\n            // Environment (Grid Floor)\n            const gridHelper = new THREE.GridHelper(200, 100, CONFIG.colors.player, CONFIG.colors.grid);\n            gridHelper.position.y = -1;\n            scene.add(gridHelper);\n\n            // Starfield\n            createStarfield();\n\n            // Event Listeners\n            window.addEventListener('resize', onWindowResize);\n            document.addEventListener('mousemove', onMouseMove);\n            document.addEventListener('touchmove', onTouchMove, { passive: false });\n            \n            startBtn.addEventListener('click', startGame);\n            restartBtn.addEventListener('click', resetGame);\n\n            // Start Animation Loop\n            animate();\n        }\n\n        function createPlayer() {\n            // A sleek geometric ship\n            const geometry = new THREE.ConeGeometry(0.5, 1.5, 4);\n            geometry.rotateX(Math.PI / 2); // Point forward\n            const material = new THREE.MeshStandardMaterial({ \n                color: CONFIG.colors.player,\n                emissive: CONFIG.colors.player,\n                emissiveIntensity: 0.5,\n                roughness: 0.2,\n                metalness: 0.8\n            });\n            player = new THREE.Mesh(geometry, material);\n            player.position.y = 0;\n            scene.add(player);\n        }\n\n        function createStarfield() {\n            const starsGeometry = new THREE.BufferGeometry();\n            const starsCount = 1000;\n            const posArray = new Float32Array(starsCount * 3);\n\n            for(let i = 0; i < starsCount * 3; i++) {\n                posArray[i] = (Math.random() - 0.5) * 100;\n            }\n\n            starsGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));\n            const starsMaterial = new THREE.PointsMaterial({\n                size: 0.1,\n                color: 0xffffff,\n                transparent: true,\n                opacity: 0.8\n            });\n\n            const starMesh = new THREE.Points(starsGeometry, starsMaterial);\n            scene.add(starMesh);\n        }\n\n        function createObstacle() {\n            // Randomly choose left, center, or right lane\n            const lanes = [-CONFIG.laneWidth, 0, CONFIG.laneWidth];\n            const lane = lanes[Math.floor(Math.random() * lanes.length)];\n\n            // Random shape: Cube or Icosahedron\n            const type = Math.random() > 0.5 ? 'box' : 'sphere';\n            let geometry;\n            \n            if (type === 'box') {\n                geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);\n            } else {\n                geometry = new THREE.IcosahedronGeometry(1, 0);\n            }\n\n            const material = new THREE.MeshStandardMaterial({\n                color: CONFIG.colors.obstacle,\n                emissive: 0x550000,\n                roughness: 0.1,\n                metalness: 0.5\n            });\n\n            const obstacle = new THREE.Mesh(geometry, material);\n            \n            // Spawn far ahead\n            obstacle.position.set(lane, 0, -50);\n            \n            // Add random rotation speed for visual flair\n            obstacle.userData = {\n                rotX: Math.random() * 0.05,\n                rotY: Math.random() * 0.05\n            };\n\n            scene.add(obstacle);\n            obstacles.push(obstacle);\n        }\n\n        function createExplosion(position) {\n            // Simple particle explosion\n            const particleCount = 15;\n            const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);\n            const material = new THREE.MeshBasicMaterial({ color: CONFIG.colors.player });\n\n            for (let i = 0; i < particleCount; i++) {\n                const particle = new THREE.Mesh(geometry, material);\n                particle.position.copy(position);\n                \n                // Random velocity\n                particle.userData = {\n                    vel: new THREE.Vector3(\n                        (Math.random() - 0.5) * 0.5,\n                        (Math.random() - 0.5) * 0.5,\n                        (Math.random() - 0.5) * 0.5\n                    ),\n                    life: 1.0\n                };\n                \n                scene.add(particle);\n                particles.push(particle);\n            }\n        }\n\n        // --- Game Logic ---\n\n        function startGame() {\n            startScreen.classList.add('hidden');\n            gameOverScreen.classList.add('hidden');\n            gameActive = true;\n            score = 0;\n            gameSpeed = CONFIG.baseSpeed;\n            scoreEl.innerText = '0';\n            \n            // Clear existing obstacles\n            obstacles.forEach(ob => scene.remove(ob));\n            obstacles = [];\n        }\n\n        function resetGame() {\n            startGame();\n        }\n\n        function gameOver() {\n            gameActive = false;\n            finalScoreEl.innerText = Math.floor(score);\n            gameOverScreen.classList.remove('hidden');\n            \n            // Visual feedback\n            createExplosion(player.position);\n            player.visible = false;\n        }\n\n        function updatePlayer() {\n            if (!gameActive) return;\n\n            // Smooth movement towards target X\n            player.position.x += (targetX - player.position.x) * 0.1;\n            \n            // Tilt effect based on movement\n            const tilt = (player.position.x - targetX) * 0.5;\n            player.rotation.z = tilt;\n            player.rotation.x = Math.PI / 2; // Keep pointing forward\n        }\n\n        function updateObstacles() {\n            if (!gameActive) return;\n\n            // Spawn logic\n            frameCount++;\n            if (frameCount % Math.floor(CONFIG.spawnRate / (gameSpeed * 2)) === 0) {\n                createObstacle();\n            }\n\n            // Move and check collisions\n            for (let i = obstacles.length - 1; i >= 0; i--) {\n                const ob = obstacles[i];\n                ob.position.z += gameSpeed;\n\n                // Rotate obstacle\n                ob.rotation.x += ob.userData.rotX;\n                ob.rotation.y += ob.userData.rotY;\n\n                // Collision Detection (Simple distance check)\n                // Player is roughly at z=0, obstacles come from z=-50\n                if (ob.position.z > -1 && ob.position.z < 1) {\n                    const dist = Math.abs(player.position.x - ob.position.x);\n                    if (dist < 1.0) { // Hit!\n                        gameOver();\n                    }\n                }\n\n                // Remove if passed camera\n                if (ob.position.z > 5) {\n                    scene.remove(ob);\n                    obstacles.splice(i, 1);\n                    score += 10;\n                    scoreEl.innerText = score;\n                }\n            }\n        }\n\n        function updateParticles() {\n            for (let i = particles.length - 1; i >= 0; i--) {\n                const p = particles[i];\n                p.position.add(p.userData.vel);\n                p.userData.life -= 0.02;\n                p.scale.setScalar(p.userData.life);\n                \n                if (p.userData.life <= 0) {\n                    scene.remove(p);\n                    particles.splice(i, 1);\n                }\n            }\n        }\n\n        function updateEnvironment() {\n            // Move grid to simulate speed\n            const grid = scene.children.find(c => c.type === 'GridHelper');\n            if (grid) {\n                grid.position.z += gameSpeed;\n                if (grid.position.z > 0) grid.position.z = 0;\n            }\n        }\n\n        // --- Input Handling ---\n\n        function onMouseMove(event) {\n            if (!gameActive) return;\n            // Map mouse X (-1 to 1) to lane width\n            mouseX = (event.clientX / window.innerWidth) * 2 - 1;\n            targetX = mouseX * CONFIG.laneWidth;\n        }\n\n        function onTouchMove(event) {\n            if (!gameActive) return;\n            event.preventDefault(); // Prevent scrolling\n            const touchX = (event.touches[0].clientX / window.innerWidth) * 2 - 1;\n            targetX = touchX * CONFIG.laneWidth;\n        }\n\n        function onWindowResize() {\n            camera.aspect = window.innerWidth / window.innerHeight;\n            camera.updateProjectionMatrix();\n            renderer.setSize(window.innerWidth, window.innerHeight);\n        }\n\n        // --- Main Loop ---\n\n        function animate() {\n            requestAnimationFrame(animate);\n\n            if (gameActive) {\n                // Increase speed over time\n                gameSpeed += CONFIG.speedIncrement;\n                score += 0.1; // Passive score\n                scoreEl.innerText = Math.floor(score);\n            }\n\n            updatePlayer();\n            updateObstacles();\n            updateParticles();\n            updateEnvironment();\n\n            renderer.render(scene, camera);\n        }\n\n        // Initialize\n        init();\n\n    </script>\n</body>\n</html>\n```",
+                  "fromDraftModel": false,
+                  "tokensCount": 3961,
+                  "isStructural": false
+                }
+              ],
+              "defaultShouldIncludeInContext": true,
+              "shouldIncludeInContext": true,
+              "genInfo": {
+                "indexedModelIdentifier": "zai-org/glm-4.7-flash",
+                "identifier": "zai-org/glm-4.7-flash",
+                "loadModelConfig": {
+                  "fields": [
+                    {
+                      "key": "llm.load.llama.autoFit",
+                      "value": false
+                    },
+                    {
+                      "key": "llm.load.mlx.autoFit",
+                      "value": false
+                    },
+                    {
+                      "key": "llm.load.llama.cpuThreadPoolSize",
+                      "value": 7
+                    },
+                    {
+                      "key": "llm.load.numExperts",
+                      "value": 4
+                    },
+                    {
+                      "key": "llm.load.contextLength",
+                      "value": 64000
+                    },
+                    {
+                      "key": "llm.load.llama.flashAttention",
+                      "value": true
+                    },
+                    {
+                      "key": "llm.load.promptTemplate",
+                      "value": {
+                        "type": "jinja",
+                        "jinjaPromptTemplate": {
+                          "template": "[gMASK]<sop>\n{%- if tools -%}\n<|system|>\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{% for tool in tools %}\n{{ tool | tojson(ensure_ascii=False) }}\n{% endfor %}\n</tools>\n\nFor each function call, output the function name and arguments within the following XML format:\n<tool_call>{function-name}<arg_key>{arg-key-1}</arg_key><arg_value>{arg-value-1}</arg_value><arg_key>{arg-key-2}</arg_key><arg_value>{arg-value-2}</arg_value>...</tool_call>{%- endif -%}\n{%- macro visible_text(content) -%}\n    {%- if content is string -%}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping -%}\n        {%- for item in content -%}\n            {%- if item is mapping and item.type == 'text' -%}\n                {{- item.text }}\n            {%- elif item is string -%}\n                {{- item }}\n            {%- endif -%}\n        {%- endfor -%}\n    {%- else -%}\n        {{- content }}\n    {%- endif -%}\n{%- endmacro -%}\n{%- set ns = namespace(last_user_index=-1) %}\n{%- for m in messages %}\n    {%- if m.role == 'user' %}\n        {% set ns.last_user_index = loop.index0 -%}\n    {%- endif %}\n{%- endfor %}\n{% for m in messages %}\n{%- if m.role == 'user' -%}<|user|>{{ visible_text(m.content) }}\n{%- elif m.role == 'assistant' -%}\n<|assistant|>\n{%- set reasoning_content = '' %}\n{%- set content = visible_text(m.content) %}\n{%- if m.reasoning_content is string %}\n    {%- set reasoning_content = m.reasoning_content %}\n{%- else %}\n    {%- if '</think>' in content %}\n        {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n        {%- set content = content.split('</think>')[-1].lstrip('\\n') %}\n    {%- endif %}\n{%- endif %}\n{%- if ((clear_thinking is defined and not clear_thinking) or loop.index0 > ns.last_user_index) and reasoning_content -%}\n{{ '<think>' + reasoning_content.strip() +  '</think>'}}\n{%- else -%}\n{{ '</think>' }}\n{%- endif -%}\n{%- if content.strip() -%}\n{{ content.strip() }}\n{%- endif -%}\n{% if m.tool_calls %}\n{% for tc in m.tool_calls %}\n{%- if tc.function %}\n    {%- set tc = tc.function %}\n{%- endif %}\n{{- '<tool_call>' + tc.name -}}\n{% set _args = tc.arguments %}{% for k, v in _args.items() %}<arg_key>{{ k }}</arg_key><arg_value>{{ v | tojson(ensure_ascii=False) if v is not string else v }}</arg_value>{% endfor %}</tool_call>{% endfor %}\n{% endif %}\n{%- elif m.role == 'tool' -%}\n{%- if m.content is string -%}\n{%- if loop.first or (messages[loop.index0 - 1].role != \"tool\") %}\n    {{- '<|observation|>' }}\n{%- endif %}\n{{- '<tool_response>' }}\n{{- m.content }}\n{{- '</tool_response>' }}\n{%- else -%}\n<|observation|>{% for tr in m.content %}\n<tool_response>{{ tr.output if tr.output is defined else tr }}</tool_response>{% endfor -%}\n{% endif -%}\n{%- elif m.role == 'system' -%}\n<|system|>{{ visible_text(m.content) }}\n{%- endif -%}\n{%- endfor -%}\n{%- if add_generation_prompt -%}\n    <|assistant|>{{- '</think>' if (enable_thinking is defined and not enable_thinking) else '<think>' -}}\n{%- endif -%}"
+                        }
+                      }
+                    },
+                    {
+                      "key": "llm.load.llama.tryDirectIO",
+                      "value": false
+                    },
+                    {
+                      "key": "llm.load.llama.acceleration.offloadRatio",
+                      "value": 0.3404255319148936
+                    },
+                    {
+                      "key": "llm.load.seed",
+                      "value": {
+                        "checked": true,
+                        "value": 1997
+                      }
+                    }
+                  ]
+                },
+                "predictionConfig": {
+                  "fields": [
+                    {
+                      "key": "llm.prediction.promptTemplate",
+                      "value": {
+                        "type": "jinja",
+                        "jinjaPromptTemplate": {
+                          "template": "[gMASK]<sop>\n{%- if tools -%}\n<|system|>\n# Tools\n\nYou may call one or more functions to assist with the user query.\n\nYou are provided with function signatures within <tools></tools> XML tags:\n<tools>\n{% for tool in tools %}\n{{ tool | tojson(ensure_ascii=False) }}\n{% endfor %}\n</tools>\n\nFor each function call, output the function name and arguments within the following XML format:\n<tool_call>{function-name}<arg_key>{arg-key-1}</arg_key><arg_value>{arg-value-1}</arg_value><arg_key>{arg-key-2}</arg_key><arg_value>{arg-value-2}</arg_value>...</tool_call>{%- endif -%}\n{%- macro visible_text(content) -%}\n    {%- if content is string -%}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping -%}\n        {%- for item in content -%}\n            {%- if item is mapping and item.type == 'text' -%}\n                {{- item.text }}\n            {%- elif item is string -%}\n                {{- item }}\n            {%- endif -%}\n        {%- endfor -%}\n    {%- else -%}\n        {{- content }}\n    {%- endif -%}\n{%- endmacro -%}\n{%- set ns = namespace(last_user_index=-1) %}\n{%- for m in messages %}\n    {%- if m.role == 'user' %}\n        {% set ns.last_user_index = loop.index0 -%}\n    {%- endif %}\n{%- endfor %}\n{% for m in messages %}\n{%- if m.role == 'user' -%}<|user|>{{ visible_text(m.content) }}\n{%- elif m.role == 'assistant' -%}\n<|assistant|>\n{%- set reasoning_content = '' %}\n{%- set content = visible_text(m.content) %}\n{%- if m.reasoning_content is string %}\n    {%- set reasoning_content = m.reasoning_content %}\n{%- else %}\n    {%- if '</think>' in content %}\n        {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n        {%- set content = content.split('</think>')[-1].lstrip('\\n') %}\n    {%- endif %}\n{%- endif %}\n{%- if ((clear_thinking is defined and not clear_thinking) or loop.index0 > ns.last_user_index) and reasoning_content -%}\n{{ '<think>' + reasoning_content.strip() +  '</think>'}}\n{%- else -%}\n{{ '</think>' }}\n{%- endif -%}\n{%- if content.strip() -%}\n{{ content.strip() }}\n{%- endif -%}\n{% if m.tool_calls %}\n{% for tc in m.tool_calls %}\n{%- if tc.function %}\n    {%- set tc = tc.function %}\n{%- endif %}\n{{- '<tool_call>' + tc.name -}}\n{% set _args = tc.arguments %}{% for k, v in _args.items() %}<arg_key>{{ k }}</arg_key><arg_value>{{ v | tojson(ensure_ascii=False) if v is not string else v }}</arg_value>{% endfor %}</tool_call>{% endfor %}\n{% endif %}\n{%- elif m.role == 'tool' -%}\n{%- if m.content is string -%}\n{%- if loop.first or (messages[loop.index0 - 1].role != \"tool\") %}\n    {{- '<|observation|>' }}\n{%- endif %}\n{{- '<tool_response>' }}\n{{- m.content }}\n{{- '</tool_response>' }}\n{%- else -%}\n<|observation|>{% for tr in m.content %}\n<tool_response>{{ tr.output if tr.output is defined else tr }}</tool_response>{% endfor -%}\n{% endif -%}\n{%- elif m.role == 'system' -%}\n<|system|>{{ visible_text(m.content) }}\n{%- endif -%}\n{%- endfor -%}\n{%- if add_generation_prompt -%}\n    <|assistant|>{{- '</think>' if (enable_thinking is defined and not enable_thinking) else '<think>' -}}\n{%- endif -%}"
+                        },
+                        "stopStrings": []
+                      }
+                    },
+                    {
+                      "key": "llm.prediction.llama.cpuThreads",
+                      "value": 7
+                    },
+                    {
+                      "key": "llm.prediction.contextPrefill",
+                      "value": []
+                    },
+                    {
+                      "key": "llm.prediction.temperature",
+                      "value": 0.2
+                    },
+                    {
+                      "key": "llm.prediction.topKSampling",
+                      "value": 50
+                    },
+                    {
+                      "key": "llm.prediction.topPSampling",
+                      "value": {
+                        "checked": true,
+                        "value": 0.95
+                      }
+                    },
+                    {
+                      "key": "llm.prediction.repeatPenalty",
+                      "value": {
+                        "checked": false,
+                        "value": 0
+                      }
+                    },
+                    {
+                      "key": "llm.prediction.reasoning.budgetTokens",
+                      "value": {
+                        "checked": false,
+                        "value": 2048
+                      }
+                    },
+                    {
+                      "key": "llm.prediction.tools",
+                      "value": {
+                        "type": "none"
+                      }
+                    }
+                  ]
+                },
+                "stats": {
+                  "stopReason": "eosFound",
+                  "tokensPerSecond": 6.160972716784465,
+                  "timeToFirstTokenSec": 1.252502,
+                  "totalTimeSec": 866.862568,
+                  "promptTokensCount": 35,
+                  "predictedTokensCount": 5334,
+                  "totalTokensCount": 5369
+                }
+              }
+            },
+            {
+              "type": "debugInfoBlock",
+              "stepIdentifier": "1790763717661-0.7848749369329648",
+              "debugInfo": "Conversation naming technique: 'prompt'"
+            }
+          ],
+          "senderInfo": {
+            "senderName": "zai-org/glm-4.7-flash"
+          }
+        }
+      ],
+      "currentlySelected": 0
+    }
+  ]
+}
